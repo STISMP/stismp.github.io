@@ -1,68 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Welcome to WeAreTheSTI</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f7fa;
-            color: #222;
-            margin: 0;
-            padding: 0;
-        }
-        header {
-            background: #0050b3;
-            color: white;
-            padding: 1.5rem 0;
-            text-align: center;
-        }
-        main {
-            max-width: 600px;
-            margin: 2rem auto;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 6px 16px rgba(0,0,0,0.09);
-            padding: 2rem;
-        }
-        h1 {
-            margin-top: 0;
-        }
-        footer {
-            text-align: center;
-            padding: 1rem 0;
-            background: #e8eaf6;
-            color: #666;
-            position: fixed;
-            width: 100%;
-            bottom: 0;
-        }
-        @media (max-width: 600px) {
-            main {
-                margin: 1rem;
-                padding: 1rem;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>STI SMP Page</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f4f8;
+      color: #222;
+    }
+    .sidebar {
+      width: 240px;
+      background: #23272a;
+      color: #fff;
+      height: 100vh;
+      position: fixed;
+      top: 0; left: 0;
+      display: flex;
+      flex-direction: column;
+      padding-top: 24px;
+    }
+    .sidebar h2 {
+      margin-top: 0;
+      margin-left: 24px;
+      font-size: 1.1em;
+      color: #ffd43b;
+    }
+    .sidebar button, .sidebar .section {
+      background: none;
+      border: none;
+      color: inherit;
+      padding: 16px 24px;
+      text-align: left;
+      font-size: 1em;
+      width: 100%;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .sidebar button:hover, .sidebar .section:hover {
+      background: #444;
+    }
+    .main-content {
+      margin-left: 240px;
+      padding: 32px;
+    }
+    .season-panel {
+      background: #fff;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 12px 24px;
+    }
+    .expand-content {
+      display: none;
+      border-top: 1px solid #eee;
+      padding-top: 12px;
+      margin-top: 12px;
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>Welcome to WeAreTheSTI</h1>
-        <p>Your project homepage</p>
-    </header>
-    <main>
-        <h2>About This Project</h2>
-        <p>This is a sample HTML page for your repository <strong>WeAreTheSTI</strong>.</p>
-        <ul>
-            <li>Easy to customize</li>
-            <li>Responsive design</li>
-            <li>Clean and modern look</li>
-        </ul>
-        <p>Get started by editing this file or adding your own content!</p>
-    </main>
-    <footer>
-        &copy; 2025 WeAreTheSTI. All rights reserved.
-    </footer>
+
+  <div class="sidebar">
+    <h2>STI SMP Content</h2>
+    <div class="section">Survival Multiplayer Seasons</div>
+    <button id="seasonOneBtn">Season One</button>
+    <div class="section">Events</div>
+    <!-- You can add more items or sections here -->
+  </div>
+
+  <div class="main-content">
+    <h1>Welcome to STI SMP</h1>
+
+    <div class="season-panel">
+      <h2>Season One</h2>
+      <button onclick="toggleSeasonOne()">Show Details</button>
+      <div id="seasonOneDetails" class="expand-content">
+        <p><strong>Rules:</strong> No cheating, no griefing, respect other players.</p>
+        <p><strong>Server Address:</strong> play.stismp.com</p>
+        <p><strong>Bedrock Edition:</strong> Address: bedrock.stismp.com<br>Port: 19132</p>
+        <p><strong>Description:</strong> The first season for STI SMP! Join, survive, and build.</p>
+        <!-- More season info here -->
+      </div>
+    </div>
+
+    <!-- Events Section Example -->
+    <div class="season-panel">
+      <h2>Upcoming Events</h2>
+      <ul>
+        <li>Halloween Build Contest - Oct 30</li>
+        <li>Community Meeting - Nov 5</li>
+        <!-- Add more events as needed -->
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    function toggleSeasonOne() {
+      const details = document.getElementById('seasonOneDetails');
+      details.style.display = (details.style.display === 'block') ? 'none' : 'block';
+    }
+    // If you want sidebar buttons to expand sections, you can add more JS here
+  </script>
+
 </body>
 </html>
