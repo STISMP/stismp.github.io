@@ -1,108 +1,626 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>STI SMP Page</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f4f4f8;
-      color: #222;
-    }
-    .sidebar {
-      width: 240px;
-      background: #23272a;
-      color: #fff;
-      height: 100vh;
-      position: fixed;
-      top: 0; left: 0;
-      display: flex;
-      flex-direction: column;
-      padding-top: 24px;
-    }
-    .sidebar h2 {
-      margin-top: 0;
-      margin-left: 24px;
-      font-size: 1.1em;
-      color: #ffd43b;
-    }
-    .sidebar button, .sidebar .section {
-      background: none;
-      border: none;
-      color: inherit;
-      padding: 16px 24px;
-      text-align: left;
-      font-size: 1em;
-      width: 100%;
-      cursor: pointer;
-      transition: background .2s;
-    }
-    .sidebar button:hover, .sidebar .section:hover {
-      background: #444;
-    }
-    .main-content {
-      margin-left: 240px;
-      padding: 32px;
-    }
-    .season-panel {
-      background: #fff;
-      border-radius: 8px;
-      margin-bottom: 24px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      padding: 12px 24px;
-    }
-    .expand-content {
-      display: none;
-      border-top: 1px solid #eee;
-      padding-top: 12px;
-      margin-top: 12px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STI SMP - Survival Multiplayer</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 200%;
+            height: 200%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>') repeat;
+            animation: slide 20s linear infinite;
+        }
+
+        @keyframes slide {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-50px, -50px); }
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 280px;
+            background: rgba(30, 30, 30, 0.95);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 0 2rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(45deg, #00ff88, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 5px rgba(0, 255, 136, 0.3)); }
+            to { filter: drop-shadow(0 0 20px rgba(0, 255, 136, 0.6)); }
+        }
+
+        .sidebar-header p {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        .sidebar-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            color: #00ff88;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 0 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-left-color: #00ff88;
+            transform: translateX(5px);
+        }
+
+        .sidebar-item.active {
+            background: rgba(0, 255, 136, 0.2);
+            border-left-color: #00ff88;
+        }
+
+        .sidebar-item i {
+            margin-right: 0.8rem;
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem;
+            width: calc(100% - 280px);
+            position: relative;
+        }
+
+        .content-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .content-header h2 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            animation: fadeInUp 1s ease;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            border: 1px solid #00ff00;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+
+        /* Server Info Cards */
+        .server-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .server-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            transform: translateY(20px);
+            opacity: 0;
+            animation: slideInUp 0.8s ease forwards;
+        }
+
+        .server-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: #00ff88;
+        }
+
+        .server-card h3 {
+            color: #00ff88;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .server-card h3 i {
+            margin-right: 0.5rem;
+        }
+
+        .server-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+
+        .copy-btn {
+            background: #00ff88;
+            color: #000;
+            border: none;
+            padding: 0.3rem 0.8rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #00d4ff;
+            transform: scale(1.1);
+        }
+
+        /* Season Panel */
+        .season-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            animation: slideInUp 1s ease;
+        }
+
+        .season-header {
+            padding: 2rem;
+            background: linear-gradient(45deg, #00ff88, #00d4ff);
+            color: #000;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .season-header:hover {
+            background: linear-gradient(45deg, #00d4ff, #00ff88);
+        }
+
+        .season-header h3 {
+            font-size: 1.5rem;
+            margin: 0;
+        }
+
+        .expand-icon {
+            transition: transform 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .expand-icon.expanded {
+            transform: rotate(180deg);
+        }
+
+        .season-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+        }
+
+        .season-content.expanded {
+            max-height: 1000px;
+        }
+
+        .season-details {
+            padding: 2rem;
+        }
+
+        /* Rules Section */
+        .rules-grid {
+            display: grid;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .rule-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 10px;
+            border-left: 4px solid #00ff88;
+            transition: all 0.3s ease;
+        }
+
+        .rule-item:hover {
+            background: rgba(0, 255, 136, 0.1);
+            transform: translateX(10px);
+        }
+
+        .rule-number {
+            color: #00ff88;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        /* Enforcement Notice */
+        .enforcement-notice {
+            background: linear-gradient(135deg, #ff4757, #ff6b7a);
+            padding: 2rem;
+            border-radius: 15px;
+            margin-top: 2rem;
+            border: 2px solid #ff4757;
+            animation: warningPulse 3s infinite;
+        }
+
+        @keyframes warningPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(255, 71, 87, 0); }
+        }
+
+        .enforcement-notice h4 {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .enforcement-notice h4 i {
+            margin-right: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            .content-header h2 {
+                font-size: 2rem;
+            }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #00ff88;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00d4ff;
+        }
+    </style>
 </head>
 <body>
+    <div class="bg-animation"></div>
+    
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1><i class="fas fa-cube"></i> STI SMP</h1>
+                <p>Survival Multiplayer Community</p>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="section-title">Seasons</div>
+                <div class="sidebar-item active" onclick="showSection('season1')">
+                    <i class="fas fa-leaf"></i>
+                    <span>Season One</span>
+                </div>
+                <div class="sidebar-item" onclick="showSection('season2')">
+                    <i class="fas fa-snowflake"></i>
+                    <span>Season Two (Coming)</span>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="section-title">Community</div>
+                <div class="sidebar-item" onclick="showSection('events')">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Events</span>
+                </div>
+                <div class="sidebar-item" onclick="showSection('staff')">
+                    <i class="fas fa-users-cog"></i>
+                    <span>Staff Team</span>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="section-title">Resources</div>
+                <div class="sidebar-item" onclick="showSection('rules')">
+                    <i class="fas fa-gavel"></i>
+                    <span>Server Rules</span>
+                </div>
+                <div class="sidebar-item" onclick="showSection('guides')">
+                    <i class="fas fa-book"></i>
+                    <span>Guides</span>
+                </div>
+            </div>
+        </div>
 
-  <div class="sidebar">
-    <h2>STI SMP Content</h2>
-    <div class="section">Survival Multiplayer Seasons</div>
-    <button id="seasonOneBtn">Season One</button>
-    <div class="section">Events</div>
-    <!-- You can add more items or sections here -->
-  </div>
+        <div class="main-content">
+            <div class="content-header">
+                <h2>WE ARE THE STI!</h2>
+                <div class="status-badge">
+                    <i class="fas fa-circle" style="margin-right: 0.5rem;"></i>
+                    Server Online
+                </div>
+            </div>
 
-  <div class="main-content">
-    <h1>Welcome to STI SMP</h1>
+            <div id="season1" class="content-section">
+                <div class="server-grid">
+                    <div class="server-card">
+                        <h3><i class="fas fa-desktop"></i> Java Edition</h3>
+                        <div class="server-info">
+                            <span><strong>Address:</strong> 208.84.103.249</span>
+                            <button class="copy-btn" onclick="copyToClipboard('208.84.103.249')">Copy</button>
+                        </div>
+                        <div class="server-info">
+                            <span><strong>Port:</strong> 26016</span>
+                            <button class="copy-btn" onclick="copyToClipboard('26016')">Copy</button>
+                        </div>
+                        <div class="server-info">
+                            <span><strong>Version:</strong> 1.21+</span>
+                        </div>
+                    </div>
+                    
+                    <div class="server-card">
+                        <h3><i class="fas fa-mobile-alt"></i> Bedrock Edition</h3>
+                        <div class="server-info">
+                            <span><strong>Address:</strong> 208.84.103.249</span>
+                            <button class="copy-btn" onclick="copyToClipboard('208.84.103.249')">Copy</button>
+                        </div>
+                        <div class="server-info">
+                            <span><strong>Port:</strong> 19132</span>
+                            <button class="copy-btn" onclick="copyToClipboard('19132')">Copy</button>
+                        </div>
+                        <div class="server-info">
+                            <span><strong>Version:</strong> Latest</span>
+                        </div>
+                    </div>
+                </div>
 
-    <div class="season-panel">
-      <h2>Season One</h2>
-      <button onclick="toggleSeasonOne()">Show Details</button>
-      <div id="seasonOneDetails" class="expand-content">
-        <p><strong>Rules:</strong> No cheating, no griefing, respect other players.</p>
-        <p><strong>Server Address:</strong> play.stismp.com</p>
-        <p><strong>Bedrock Edition:</strong> Address: bedrock.stismp.com<br>Port: 19132</p>
-        <p><strong>Description:</strong> The first season for STI SMP! Join, survive, and build.</p>
-        <!-- More season info here -->
-      </div>
+                <div class="season-panel">
+                    <div class="season-header" onclick="toggleExpand('seasonRules')">
+                        <h3>Season One Rules & Guidelines</h3>
+                        <i class="fas fa-chevron-down expand-icon" id="seasonRulesIcon"></i>
+                    </div>
+                    <div class="season-content" id="seasonRules">
+                        <div class="season-details">
+                            <div class="rules-grid">
+                                <div class="rule-item">
+                                    <span class="rule-number">1.</span>
+                                    <strong>3DAYS PEACEFUL:</strong> No PvP or killing someone for the first 3 days
+                                </div>
+                                <div class="rule-item">
+                                    <span class="rule-number">2.</span>
+                                    <strong>No Griefing:</strong> Don't destroy or steal other players' builds or items. Respect player builds
+                                </div>
+                                <div class="rule-item">
+                                    <span class="rule-number">3.</span>
+                                    <strong>Be Respectful:</strong> Treat everyone kindly. No bullying
+                                </div>
+                                <div class="rule-item">
+                                    <span class="rule-number">4.</span>
+                                    <strong>PvP Limitations:</strong> Be respectful during Player vs. Player combat and do not attack players in protected areas like spawn points
+                                </div>
+                                <div class="rule-item">
+                                    <span class="rule-number">5.</span>
+                                    <strong>No Hacking or Cheating:</strong> Mods or clients that give unfair advantages are not allowed
+                                </div>
+                                <div class="rule-item">
+                                    <span class="rule-number">6.</span>
+                                    <strong>No Spamming or Advertising:</strong> Keep the chat clean; don't flood it or promote other servers
+                                </div>
+                                <div class="rule-item">
+                                    <span class="rule-number">7.</span>
+                                    <strong>No Stealing:</strong> Take only what you've earned. Respect other players' chests and property
+                                </div>
+                                <div class="rule-item">
+                                    <span class="rule-number">8.</span>
+                                    <strong>Follow Staff Instructions:</strong> Admins and moderators have the final say
+                                </div>
+                                <div class="rule-item">
+                                    <span class="rule-number">9.</span>
+                                    <strong>DON'T START END PORTAL WAIT OTHERS!!</strong>
+                                </div>
+                            </div>
+
+                            <div class="enforcement-notice">
+                                <h4><i class="fas fa-exclamation-triangle"></i> Server Rules Enforcement Notice</h4>
+                                <p><strong>If you disobey the rules,</strong> be prepared for consequences.</p>
+                                <ul style="margin: 1rem 0; padding-left: 2rem;">
+                                    <li>You may face <strong>warnings</strong>, <strong>temporary bans</strong>, or even a <strong>permanent ban</strong>, depending on the offense.</li>
+                                    <li>Repeated rule-breaking might also result in <strong>item removal</strong>, <strong>build rollbacks</strong>, or <strong>muted chat privileges</strong>.</li>
+                                    <li>And if you really push it... the <strong>Admin Hammer of Justice</strong> will strike — swiftly and without mercy! ⚠️</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="events" class="content-section" style="display:none;">
+                <div class="season-panel">
+                    <div class="season-header">
+                        <h3><i class="fas fa-calendar-alt"></i> Upcoming Events</h3>
+                    </div>
+                    <div class="season-content expanded">
+                        <div class="season-details">
+                            <div class="rule-item">
+                                <i class="fas fa-pumpkin" style="color: #ff8c00; margin-right: 0.5rem;"></i>
+                                <strong>Halloween Build Contest</strong> - October 31st
+                            </div>
+                            <div class="rule-item">
+                                <i class="fas fa-users" style="color: #00d4ff; margin-right: 0.5rem;"></i>
+                                <strong>Community Meeting</strong> - November 5th
+                            </div>
+                            <div class="rule-item">
+                                <i class="fas fa-gift" style="color: #ff6b7a; margin-right: 0.5rem;"></i>
+                                <strong>Winter Festival</strong> - December 20th
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Events Section Example -->
-    <div class="season-panel">
-      <h2>Upcoming Events</h2>
-      <ul>
-        <li>Halloween Build Contest - Oct 30</li>
-        <li>Community Meeting - Nov 5</li>
-        <!-- Add more events as needed -->
-      </ul>
-    </div>
-  </div>
+    <script>
+        function toggleExpand(contentId) {
+            const content = document.getElementById(contentId);
+            const icon = document.getElementById(contentId + 'Icon');
+            
+            content.classList.toggle('expanded');
+            icon.classList.toggle('expanded');
+        }
 
-  <script>
-    function toggleSeasonOne() {
-      const details = document.getElementById('seasonOneDetails');
-      details.style.display = (details.style.display === 'block') ? 'none' : 'block';
-    }
-    // If you want sidebar buttons to expand sections, you can add more JS here
-  </script>
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => section.style.display = 'none');
+            
+            // Show selected section
+            const selectedSection = document.getElementById(sectionId);
+            if (selectedSection) {
+                selectedSection.style.display = 'block';
+            }
+            
+            // Update active sidebar item
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => item.classList.remove('active'));
+            event.target.closest('.sidebar-item').classList.add('active');
+        }
 
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                // Show temporary success message
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                btn.style.background = '#00d4ff';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '#00ff88';
+                }, 2000);
+            });
+        }
+
+        // Add staggered animation delays
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.server-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.2}s`;
+            });
+        });
+    </script>
 </body>
 </html>
